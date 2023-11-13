@@ -38,6 +38,7 @@ export interface PluginTrigger<
     deriveBlockConfig: (
         args: {
             form?: unknown;
+            webhookUrl: string;
             blockConfig?: BlockConfig;
         } & PluginConfigIfNeeded,
     ) => TriggerDeriveBlockConfig<BlockConfig, RenderProps> | Promise<TriggerDeriveBlockConfig<BlockConfig, RenderProps>>;

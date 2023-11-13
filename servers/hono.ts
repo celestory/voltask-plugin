@@ -94,7 +94,10 @@ export const startServer = (plugin: Plugin<unknown, unknown>) => {
             const pluginConfigsIds = Object.keys(pluginConfigs);
 
             for (const pluginConfigId of pluginConfigsIds) {
-                const {valid} = await trigger.deriveBlockConfig({pluginConfig: pluginConfigs[pluginConfigId]!});
+                const {valid} = await trigger.deriveBlockConfig({
+                    webhookUrl: 'BEST_CONFIG',
+                    pluginConfig: pluginConfigs[pluginConfigId]!,
+                });
                 if (valid) {
                     return ctx.json({bestConfig: pluginConfigId});
                 }
@@ -104,8 +107,8 @@ export const startServer = (plugin: Plugin<unknown, unknown>) => {
             });
         });
         app.post(`/triggers/${triggerName}/blockSchema`, async ctx => {
-            const {form, blockConfig, pluginConfig} = await ctx.req.json();
-            const {valid, renderProps, blockConfig: derivedBlockConfig} = await trigger.deriveBlockConfig({form, blockConfig, pluginConfig});
+            const {form, webhookUrl, blockConfig, pluginConfig} = await ctx.req.json();
+            const {valid, renderProps, blockConfig: derivedBlockConfig} = await trigger.deriveBlockConfig({form, webhookUrl, blockConfig, pluginConfig});
 
             return ctx.json({
                 valid,
