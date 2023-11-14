@@ -1,4 +1,4 @@
-export {startServer} from './servers/hono.ts';
+export {createServer} from './servers/hono.ts';
 
 export {createPlugin} from './plugin.ts';
 export type {Plugin} from './plugin.ts';

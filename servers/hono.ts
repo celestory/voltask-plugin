@@ -2,9 +2,9 @@ import {Hono} from 'https://deno.land/x/hono@v3.7.0-rc.1/mod.ts';
 
 import type {Plugin} from '../plugin.ts';
 
-// TODO: Error handling
+export const createServer = (plugin: Plugin<unknown, unknown>) => {
+    // TODO: Better error handling
 
-export const startServer = (plugin: Plugin<unknown, unknown>) => {
     const app = new Hono();
 
     app.get('/', ctx => {
@@ -165,5 +165,5 @@ export const startServer = (plugin: Plugin<unknown, unknown>) => {
         return ctx.json({error: error.message}, 500);
     });
 
-    Deno.serve(app.fetch);
+    return app;
 };
