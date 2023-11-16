@@ -167,3 +167,12 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
 
     return app;
 };
+
+export const createServers = (plugins: Record<string, Plugin<unknown, unknown>>) => {
+    const app = new Hono();
+
+    for (const [name, plugin] of Object.entries(plugins)) {
+        app.route(`/${name}`, createServer(plugin));
+    }
+    return app;
+};
