@@ -55,7 +55,7 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
         app.post(`/actions/${actionName}/blockSignature`, async ctx => {
             const {params, blockConfig, pluginConfig} = await ctx.req.json();
 
-            return ctx.json(action.renderBlockSignature({params, blockConfig, pluginConfig}));
+            return ctx.json(await action.renderBlockSignature({params, blockConfig, pluginConfig}));
         });
 
         app.post(`/actions/${actionName}/executeBlock`, async ctx => {
@@ -120,17 +120,17 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
         app.post(`/triggers/${triggerName}/blockSignature`, async ctx => {
             const {params, blockConfig, pluginConfig} = await ctx.req.json();
 
-            return ctx.json(trigger.renderBlockSignature({params, blockConfig, pluginConfig}));
+            return ctx.json(await trigger.renderBlockSignature({params, blockConfig, pluginConfig}));
         });
         app.post(`/triggers/${triggerName}/watchBlock`, async ctx => {
             const {webhookUrl, blockConfig, pluginConfig} = await ctx.req.json();
 
-            return ctx.json(trigger.watchBlock({webhookUrl, blockConfig, pluginConfig}));
+            return ctx.json(await trigger.watchBlock({webhookUrl, blockConfig, pluginConfig}));
         });
         app.delete(`/triggers/${triggerName}/cleanupBlock`, async ctx => {
             const {blockConfig, pluginConfig, cleanupData} = await ctx.req.json();
 
-            return ctx.json(trigger.cleanupBlock({blockConfig, pluginConfig, cleanupData}));
+            return ctx.json(await trigger.cleanupBlock({blockConfig, pluginConfig, cleanupData}));
         });
         app.all(`/triggers/${triggerName}/executeBlock`, async ctx => {
             switch (trigger.executeBlock.constructor.name) {
