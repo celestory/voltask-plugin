@@ -62,10 +62,10 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
             const {params, blockConfig, pluginConfig} = await ctx.req.json();
             switch (action.executeBlock.constructor.name) {
                 case 'Function': {
-                    return ctx.json(action.executeBlock({params, blockConfig, pluginConfig}));
+                    return ctx.json({done: true, value: action.executeBlock({params, blockConfig, pluginConfig})});
                 }
                 case 'AsyncFunction': {
-                    return ctx.json(await action.executeBlock({params, blockConfig, pluginConfig}));
+                    return ctx.json({done: true, value: await action.executeBlock({params, blockConfig, pluginConfig})});
                 }
                 case 'GeneratorFunction':
                 case 'AsyncGeneratorFunction': {
@@ -135,10 +135,10 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
         app.all(`/triggers/${triggerName}/executeBlock`, async ctx => {
             switch (trigger.executeBlock.constructor.name) {
                 case 'Function': {
-                    return ctx.json(trigger.executeBlock({request: ctx.req.raw}));
+                    return ctx.json({done: true, value: trigger.executeBlock({request: ctx.req.raw})});
                 }
                 case 'AsyncFunction': {
-                    return ctx.json(await trigger.executeBlock({request: ctx.req.raw}));
+                    return ctx.json({done: true, value: await trigger.executeBlock({request: ctx.req.raw})});
                 }
                 case 'GeneratorFunction':
                 case 'AsyncGeneratorFunction': {
