@@ -1,13 +1,13 @@
 import {JSONSchema} from './schema.ts';
 
 interface ActionParams {
-    from: string;
-    params: Record<string, unknown>;
+    values: Record<string, unknown>;
+    inputId: string;
 }
 
 interface ActionReturns {
-    to: string;
-    returns: Record<string, unknown>;
+    values: Record<string, unknown>;
+    outputId: string;
 }
 
 interface ActionDeriveBlockConfig<BlockConfig, RenderProps> {

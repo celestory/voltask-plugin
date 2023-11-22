@@ -1,8 +1,8 @@
 import {JSONSchema} from './schema.ts';
 
 interface TriggerReturns {
-    to: string;
-    returns: Record<string, unknown>;
+    values: Record<string, unknown>;
+    outputId: string;
 }
 
 interface TriggerDeriveBlockConfig<BlockConfig, RenderProps> {
