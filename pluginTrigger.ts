@@ -1,7 +1,7 @@
-import {JSONSchema} from './schema.ts';
+import {JSONSchema, FromObjectSchema} from './schema.ts';
 
-interface TriggerReturns {
-    values: Record<string, unknown>;
+interface TriggerReturns<BlockSignature extends PluginTriggerBlockSignature> {
+    values: FromObjectSchema<BlockSignature['returns']['values']>;
     outputId: string;
 }
 
@@ -26,6 +26,8 @@ export interface PluginTrigger<
     RenderProps = unknown,
     NeedPluginConfig extends boolean = boolean,
     PluginConfigIfNeeded = NeedPluginConfig extends true ? {pluginConfig: PluginConfig} : object,
+    //
+    SignedTriggerReturns extends TriggerReturns<BlockSignature> = TriggerReturns<BlockSignature>,
 > {
     manifest: {
         title: string;
@@ -75,7 +77,11 @@ export interface PluginTrigger<
         args: {
             request: Request;
         },
-    ) => TriggerReturns | Promise<TriggerReturns> | Generator<TriggerReturns, TriggerReturns> | AsyncGenerator<TriggerReturns, TriggerReturns>;
+    ) =>
+        | SignedTriggerReturns
+        | Promise<SignedTriggerReturns>
+        | Generator<SignedTriggerReturns, SignedTriggerReturns>
+        | AsyncGenerator<SignedTriggerReturns, SignedTriggerReturns>;
 }
 
 export const createPluginTrigger =

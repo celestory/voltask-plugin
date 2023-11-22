@@ -21,3 +21,5 @@ export type FromSchema<T> = T extends {type: 'number'}
     : T extends {type: 'object'; properties: infer P}
     ? {[K in keyof P]: FromSchema<P[K]>}
     : never;
+
+export type FromObjectSchema<T extends Record<string, JSONSchema>> = {[K in keyof T]: FromSchema<T[K]>};

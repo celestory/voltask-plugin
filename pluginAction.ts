@@ -1,12 +1,12 @@
-import {JSONSchema} from './schema.ts';
+import {JSONSchema, FromObjectSchema} from './schema.ts';
 
-interface ActionParams {
-    values: Record<string, unknown>;
+interface ActionParams<BlockSignature extends PluginActionBlockSignature> {
+    values: FromObjectSchema<BlockSignature['params']['values']>;
     inputId: string;
 }
 
-interface ActionReturns {
-    values: Record<string, unknown>;
+interface ActionReturns<BlockSignature extends PluginActionBlockSignature> {
+    values: FromObjectSchema<BlockSignature['returns']['values']>;
     outputId: string;
 }
 
@@ -32,6 +32,9 @@ export interface PluginAction<
     RenderProps = unknown,
     NeedPluginConfig extends boolean = boolean,
     PluginConfigIfNeeded = NeedPluginConfig extends true ? {pluginConfig: PluginConfig} : object,
+    //
+    SignedActionParams extends ActionParams<BlockSignature> = ActionParams<BlockSignature>,
+    SignedActionReturns extends ActionReturns<BlockSignature> = ActionReturns<BlockSignature>,
 > {
     manifest: {
         title: string;
@@ -64,10 +67,14 @@ export interface PluginAction<
     executeBlock: (
         //
         args: {
-            params: ActionParams;
+            params: SignedActionParams;
             blockConfig: BlockConfig;
         } & PluginConfigIfNeeded,
-    ) => ActionReturns | Promise<ActionReturns> | Generator<ActionReturns, ActionReturns> | AsyncGenerator<ActionReturns, ActionReturns>;
+    ) =>
+        | SignedActionReturns
+        | Promise<SignedActionReturns>
+        | Generator<SignedActionReturns, SignedActionReturns>
+        | AsyncGenerator<SignedActionReturns, SignedActionReturns>;
 }
 
 export const createPluginAction =
