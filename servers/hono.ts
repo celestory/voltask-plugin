@@ -29,16 +29,16 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
     for (const [actionName, action] of Object.entries(plugin.actions)) {
         app.post(`/actions/${actionName}/bestConfig`, async ctx => {
             const {pluginConfigs} = await ctx.req.json();
-            const pluginConfigsIds = Object.keys(pluginConfigs);
+            const pluginConfigUids = Object.keys(pluginConfigs);
 
-            for (const pluginConfigId of pluginConfigsIds) {
-                const {valid} = await action.deriveBlockConfig({pluginConfig: pluginConfigs[pluginConfigId]!});
+            for (const pluginConfigUid of pluginConfigUids) {
+                const {valid} = await action.deriveBlockConfig({pluginConfig: pluginConfigs[pluginConfigUid]!});
                 if (valid) {
-                    return ctx.json({bestConfig: pluginConfigId});
+                    return ctx.json({bestConfigUid: pluginConfigUid});
                 }
             }
             return ctx.json({
-                bestConfig: pluginConfigsIds[0],
+                bestConfigUid: pluginConfigUids[0],
             });
         });
         app.post(`/actions/${actionName}/blockSchema`, async ctx => {
@@ -91,19 +91,19 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
     for (const [triggerName, trigger] of Object.entries(plugin.triggers)) {
         app.post(`/triggers/${triggerName}/bestConfig`, async ctx => {
             const {pluginConfigs} = await ctx.req.json();
-            const pluginConfigsIds = Object.keys(pluginConfigs);
+            const pluginConfigUids = Object.keys(pluginConfigs);
 
-            for (const pluginConfigId of pluginConfigsIds) {
+            for (const pluginConfigUid of pluginConfigUids) {
                 const {valid} = await trigger.deriveBlockConfig({
                     webhookUrl: 'BEST_CONFIG',
-                    pluginConfig: pluginConfigs[pluginConfigId]!,
+                    pluginConfig: pluginConfigs[pluginConfigUid]!,
                 });
                 if (valid) {
-                    return ctx.json({bestConfig: pluginConfigId});
+                    return ctx.json({bestConfigUid: pluginConfigUid});
                 }
             }
             return ctx.json({
-                bestConfig: pluginConfigsIds[0],
+                bestConfigUid: pluginConfigUids[0],
             });
         });
         app.post(`/triggers/${triggerName}/blockSchema`, async ctx => {
