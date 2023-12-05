@@ -41,6 +41,7 @@ export interface PluginAction<
         color: string;
         iconUrl: string;
         description: string;
+        hasLifecycle: boolean;
         needsPluginConfig: NeedPluginConfig;
     };
     //
