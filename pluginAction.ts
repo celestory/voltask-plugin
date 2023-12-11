@@ -74,8 +74,8 @@ export interface PluginAction<
     ) =>
         | SignedActionReturns
         | Promise<SignedActionReturns>
-        | Generator<SignedActionReturns, SignedActionReturns>
-        | AsyncGenerator<SignedActionReturns, SignedActionReturns>;
+        | Generator<SignedActionReturns, SignedActionReturns | undefined>
+        | AsyncGenerator<SignedActionReturns, SignedActionReturns | undefined>;
 }
 
 export const createPluginAction =

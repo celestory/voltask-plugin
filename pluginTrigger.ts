@@ -80,8 +80,8 @@ export interface PluginTrigger<
     ) =>
         | SignedTriggerReturns
         | Promise<SignedTriggerReturns>
-        | Generator<SignedTriggerReturns, SignedTriggerReturns>
-        | AsyncGenerator<SignedTriggerReturns, SignedTriggerReturns>;
+        | Generator<SignedTriggerReturns, SignedTriggerReturns | undefined>
+        | AsyncGenerator<SignedTriggerReturns, SignedTriggerReturns | undefined>;
 }
 
 export const createPluginTrigger =
