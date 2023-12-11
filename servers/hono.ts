@@ -71,13 +71,17 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
                 case 'AsyncGeneratorFunction': {
                     const generator = await action.executeBlock({params, blockConfig, pluginConfig});
                     return ctx.streamText(async stream => {
-                        while (true) {
-                            const {done, value} = await (generator as AsyncGenerator).next();
+                        try {
+                            while (true) {
+                                const {done, value} = await (generator as AsyncGenerator).next();
 
-                            await stream.writeln(JSON.stringify({done, value}));
-                            if (done) {
-                                return;
+                                await stream.writeln(JSON.stringify({done, value}));
+                                if (done) {
+                                    return;
+                                }
                             }
+                        } catch (e) {
+                            console.error(`/actions/${actionName}/executeBlock`, e);
                         }
                     });
                 }
@@ -144,13 +148,17 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
                 case 'AsyncGeneratorFunction': {
                     const generator = await trigger.executeBlock({request: ctx.req.raw});
                     return ctx.streamText(async stream => {
-                        while (true) {
-                            const {done, value} = await (generator as AsyncGenerator).next();
+                        try {
+                            while (true) {
+                                const {done, value} = await (generator as AsyncGenerator).next();
 
-                            await stream.writeln(JSON.stringify({done, value}));
-                            if (done) {
-                                return;
+                                await stream.writeln(JSON.stringify({done, value}));
+                                if (done) {
+                                    return;
+                                }
                             }
+                        } catch (e) {
+                            console.error(`/triggers/${triggerName}/executeBlock`, e);
                         }
                     });
                 }
