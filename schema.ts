@@ -1,12 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type JSONSchemaAny = {
     type?: never;
+    const?: never;
     title?: string;
     default?: never;
 };
 
 export type JSONSchemaNumber = {
     type: 'number';
+    const?: number;
     title?: string;
     default?: number;
 };
@@ -14,18 +16,21 @@ export type JSONSchemaNumber = {
 export type JSONSchemaString = {
     type: 'string';
     enum?: string[];
+    const?: string;
     title?: string;
     default?: string;
 };
 
 export type JSONSchemaBoolean = {
     type: 'boolean';
+    const?: boolean;
     title?: string;
     default?: boolean;
 };
 
 export type JSONSchemaArray = {
     type: 'array';
+    const?: unknown[];
     items?: JSONSchema;
     title?: string;
     default?: unknown[];
@@ -37,6 +42,7 @@ export type JSONSchemaArray = {
 
 export type JSONSchemaObject = {
     type: 'object';
+    const?: object;
     title?: string;
     default?: object;
     required?: readonly string[];
