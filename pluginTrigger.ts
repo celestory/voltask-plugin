@@ -34,7 +34,7 @@ export interface PluginTrigger<
         color: string;
         iconUrl: string;
         description: string;
-        needsPluginConfig: boolean;
+        needsPluginConfig: NeedPluginConfig;
     };
     //
     deriveBlockConfig: (
