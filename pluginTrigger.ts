@@ -62,13 +62,14 @@ export interface PluginTrigger<
         args: {
             webhookUrl: string;
             blockConfig: BlockConfig;
+            cleanupData?: CleanupData;
         } & PluginConfigIfNeeded,
-    ) => CleanupData | Promise<CleanupData>;
+    ) => (CleanupData | undefined) | Promise<CleanupData | undefined>;
     cleanupBlock: (
         //
         args: {
-            cleanupData: CleanupData;
             blockConfig: BlockConfig;
+            cleanupData: CleanupData;
         } & PluginConfigIfNeeded,
     ) => void | Promise<void>;
     //

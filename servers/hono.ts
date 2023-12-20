@@ -127,9 +127,9 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
             return ctx.json(await trigger.renderBlockSignature({params, blockConfig, pluginConfig}));
         });
         app.post(`/triggers/${triggerName}/watchBlock`, async ctx => {
-            const {webhookUrl, blockConfig, pluginConfig} = await ctx.req.json();
+            const {webhookUrl, blockConfig, cleanupData, pluginConfig} = await ctx.req.json();
 
-            return ctx.json(await trigger.watchBlock({webhookUrl, blockConfig, pluginConfig}));
+            return ctx.json(await trigger.watchBlock({webhookUrl, blockConfig, cleanupData, pluginConfig}));
         });
         app.delete(`/triggers/${triggerName}/cleanupBlock`, async ctx => {
             const {blockConfig, pluginConfig, cleanupData} = await ctx.req.json();
