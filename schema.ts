@@ -54,6 +54,8 @@ export type JSONSchema = JSONSchemaAny | JSONSchemaNumber | JSONSchemaString | J
 
 export type FromSchema<T> = T extends {type: 'number'}
     ? number
+    : T extends {type: 'boolean'}
+    ? boolean
     : T extends {type: 'string'}
     ? string
     : T extends {type: 'array'; items: infer P}
