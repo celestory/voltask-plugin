@@ -58,7 +58,7 @@ export type FromSchema<T> = T extends {type: 'number'}
     ? boolean
     : T extends {type: 'string'}
     ? string
-    : T extends {type: 'array'; items: infer P}
+    : T extends {type: 'array'; items: infer P; minItems?: number; uniqueItems?: boolean}
     ? FromSchema<P>[]
     : T extends {type: 'object'; properties: infer P}
     ? {[K in keyof P]: FromSchema<P[K]>}
