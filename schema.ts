@@ -3,6 +3,7 @@ export type JSONSchemaAny = {
     type?: never;
     const?: never;
     title?: string;
+    format?: string;
     default?: never;
 };
 
@@ -10,6 +11,7 @@ export type JSONSchemaNumber = {
     type: 'number';
     const?: number;
     title?: string;
+    format?: string;
     default?: number;
 };
 
@@ -18,6 +20,7 @@ export type JSONSchemaString = {
     enum?: string[];
     const?: string;
     title?: string;
+    format?: string;
     default?: string;
 };
 
@@ -33,6 +36,7 @@ export type JSONSchemaArray = {
     const?: unknown[];
     items?: JSONSchema;
     title?: string;
+    format?: string;
     default?: unknown[];
     minItems?: number;
     maxItems?: number;
@@ -44,6 +48,7 @@ export type JSONSchemaObject = {
     type: 'object';
     const?: object;
     title?: string;
+    format?: string;
     default?: object;
     required?: readonly string[];
     properties: Record<string, JSONSchema>;
