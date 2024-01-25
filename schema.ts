@@ -1,59 +1,46 @@
 // eslint-disable-next-line @typescript-eslint/ban-types
+
+export type JSONSchemaShared<T> = {
+    const?: T;
+    title?: string;
+    format?: string;
+    default?: T;
+    errorMessage?: string | object;
+};
+
 export type JSONSchemaAny = {
     type?: never;
     const?: never;
-    title?: string;
-    format?: string;
-    default?: never;
-};
+} & JSONSchemaShared<unknown>;
 
 export type JSONSchemaNumber = {
     type: 'number';
-    const?: number;
-    title?: string;
-    format?: string;
-    default?: number;
-};
+} & JSONSchemaShared<number>;
 
 export type JSONSchemaString = {
     type: 'string';
     enum?: string[];
-    const?: string;
-    title?: string;
-    format?: string;
-    default?: string;
-};
+} & JSONSchemaShared<string>;
 
 export type JSONSchemaBoolean = {
     type: 'boolean';
-    const?: boolean;
-    title?: string;
-    default?: boolean;
-};
+} & JSONSchemaShared<boolean>;
 
 export type JSONSchemaArray = {
     type: 'array';
-    const?: unknown[];
     items?: JSONSchema;
-    title?: string;
-    format?: string;
-    default?: unknown[];
     minItems?: number;
     maxItems?: number;
     prefixItems?: JSONSchema[];
     uniqueItems?: boolean;
-};
+} & JSONSchemaShared<unknown[]>;
 
 export type JSONSchemaObject = {
     type: 'object';
-    const?: object;
-    title?: string;
-    format?: string;
-    default?: object;
     required?: readonly string[];
     properties: Record<string, JSONSchema>;
     additionalProperties?: boolean;
-};
+} & JSONSchemaShared<object>;
 
 export type JSONSchema = JSONSchemaAny | JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean | JSONSchemaArray | JSONSchemaObject;
 
