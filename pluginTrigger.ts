@@ -1,4 +1,5 @@
-import {JSONSchema, FromObjectSchema} from './schema.ts';
+import {getSavedTriggers} from './database/database.ts';
+import type {JSONSchema, FromObjectSchema} from './schema.ts';
 
 interface TriggerReturns<BlockSignature extends PluginTriggerBlockSignature> {
     values: FromObjectSchema<BlockSignature['returns']['values']>;
@@ -91,3 +92,17 @@ export const createPluginTrigger =
         trigger: PluginTrigger<CleanupData, BlockConfig, PluginConfig, BlockSignature, RenderProps, NeedPluginConfig>,
     ) =>
         trigger as PluginTrigger<unknown, unknown, unknown, PluginTriggerBlockSignature>;
+
+export const createSavedPluginTrigger =
+    <CleanupData, BlockConfig, PluginConfig, BlockSignature extends PluginTriggerBlockSignature = PluginTriggerBlockSignature>(
+        pluginName: string,
+        triggerName: string,
+    ) =>
+    <RenderProps, NeedPluginConfig extends boolean>(
+        trigger: PluginTrigger<CleanupData, BlockConfig, PluginConfig, BlockSignature, RenderProps, NeedPluginConfig>,
+    ) => {
+        for (const {plugin: _1, trigger: _2, ...args} of getSavedTriggers(pluginName, triggerName)) {
+            trigger.watchBlock(args as any);
+        }
+        return trigger as PluginTrigger<unknown, unknown, unknown, PluginTriggerBlockSignature>;
+    };

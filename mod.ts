@@ -1,5 +1,8 @@
 export {createServer, createServers} from './servers/hono.ts';
 
+export {forgetTrigger, hasPluginDb, getSavedTriggers, rememberTrigger} from './database/database.ts';
+export type {Trigger} from './database/database.ts';
+
 export {createPlugin} from './plugin.ts';
 export type {Plugin} from './plugin.ts';
 
