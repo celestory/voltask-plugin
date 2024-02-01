@@ -7,12 +7,40 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
 
     const app = new Hono();
 
-    app.get('/', ctx => {
+    app.get('/', async ctx => {
+        const {config: pluginConfig} = await plugin.deriveConfig({});
         return ctx.json({
             manifest: plugin.manifest,
             //
-            actions: Object.entries(plugin.actions).reduce((actions, [name, action]) => ({...actions, [name]: {manifest: action.manifest}}), {}),
-            triggers: Object.entries(plugin.triggers).reduce((triggers, [name, trigger]) => ({...triggers, [name]: {manifest: trigger.manifest}}), {}),
+            actions: await Object.entries(plugin.actions).reduce(
+                async (actions, [name, action]) => ({
+                    ...(await actions),
+                    [name]: {
+                        manifest: action.manifest,
+                        signature: await action.renderBlockSignature({
+                            blockConfig: (
+                                await action.deriveBlockConfig({
+                                    pluginConfig,
+                                })
+                            ).blockConfig,
+                            pluginConfig,
+                        }),
+                    },
+                }),
+                Promise.resolve({}),
+            ),
+            triggers: await Object.entries(plugin.triggers).reduce(
+                async (triggers, [name, trigger]) => ({
+                    ...(await triggers),
+                    [name]: {
+                        manifest: trigger.manifest,
+                        signature: await trigger.renderBlockSignature({
+                            blockConfig: (await trigger.deriveBlockConfig({webhookUrl: '', pluginConfig})).blockConfig,
+                        }),
+                    },
+                }),
+                Promise.resolve({}),
+            ),
         });
     });
 
