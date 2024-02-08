@@ -87,35 +87,40 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
         });
 
         app.post(`/actions/${actionName}/executeBlock`, async ctx => {
-            const {params, blockConfig, pluginConfig} = await ctx.req.json();
-            switch (action.executeBlock.constructor.name) {
-                case 'Function': {
-                    return ctx.json({done: true, value: action.executeBlock({params, blockConfig, pluginConfig})});
-                }
-                case 'AsyncFunction': {
-                    return ctx.json({done: true, value: await action.executeBlock({params, blockConfig, pluginConfig})});
-                }
-                case 'GeneratorFunction':
-                case 'AsyncGeneratorFunction': {
-                    const generator = await action.executeBlock({params, blockConfig, pluginConfig});
-                    return ctx.streamText(async stream => {
-                        try {
-                            while (true) {
-                                const {done, value} = await (generator as AsyncGenerator).next();
+            try {
+                const {params, blockConfig, pluginConfig} = await ctx.req.json();
+                switch (action.executeBlock.constructor.name) {
+                    case 'Function': {
+                        return ctx.json({done: true, value: action.executeBlock({params, blockConfig, pluginConfig})});
+                    }
+                    case 'AsyncFunction': {
+                        return ctx.json({done: true, value: await action.executeBlock({params, blockConfig, pluginConfig})});
+                    }
+                    case 'GeneratorFunction':
+                    case 'AsyncGeneratorFunction': {
+                        const generator = await action.executeBlock({params, blockConfig, pluginConfig});
+                        return ctx.streamText(async stream => {
+                            try {
+                                while (true) {
+                                    const {done, value} = await (generator as AsyncGenerator).next();
 
-                                await stream.writeln(JSON.stringify({done, value}));
-                                if (done) {
-                                    return;
+                                    await stream.writeln(JSON.stringify({done, value}));
+                                    if (done) {
+                                        return;
+                                    }
                                 }
+                            } catch (e) {
+                                await stream.writeln(JSON.stringify({done: false, error: {statusCode: 500, message: e.toString()}}));
+                                console.error(`/actions/${actionName}/executeBlock`, e);
                             }
-                        } catch (e) {
-                            console.error(`/actions/${actionName}/executeBlock`, e);
-                        }
-                    });
+                        });
+                    }
+                    default: {
+                        throw new Error(`Cannot run executeBlock: ${action.executeBlock.constructor.name}`);
+                    }
                 }
-                default: {
-                    throw new Error(`Cannot run executeBlock: ${action.executeBlock.constructor.name}`);
-                }
+            } catch (err) {
+                return ctx.json({error: err.toString()}, 400);
             }
         });
     }
@@ -187,6 +192,7 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
                             }
                         } catch (e) {
                             console.error(`/triggers/${triggerName}/executeBlock`, e);
+                            await stream.writeln(JSON.stringify({done: false, error: {statusCode: 500, message: e.toString()}}));
                         }
                     });
                 }
