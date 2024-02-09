@@ -38,8 +38,8 @@ export type JSONSchemaArray = {
 export type JSONSchemaObject = {
     type: 'object';
     required?: readonly string[];
-    properties: Record<string, JSONSchema>;
-    additionalProperties?: boolean;
+    properties?: Record<string, JSONSchema>;
+    additionalProperties?: boolean | JSONSchema;
 } & JSONSchemaShared<object>;
 
 export type JSONSchema = JSONSchemaAny | JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean | JSONSchemaArray | JSONSchemaObject;
