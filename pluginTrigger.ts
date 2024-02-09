@@ -102,6 +102,7 @@ export const createSavedPluginTrigger =
         trigger: PluginTrigger<CleanupData, BlockConfig, PluginConfig, BlockSignature, RenderProps, NeedPluginConfig>,
     ) => {
         for (const {plugin: _1, trigger: _2, ...args} of getSavedTriggers(pluginName, triggerName)) {
+            // deno-lint-ignore no-explicit-any
             trigger.watchBlock(args as any);
         }
         return trigger as PluginTrigger<unknown, unknown, unknown, PluginTriggerBlockSignature>;
