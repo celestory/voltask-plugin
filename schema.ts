@@ -1,4 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
+
 export type JSONSchemaShared<T> = {
     const?: T;
     title?: string;
@@ -43,10 +44,9 @@ export type JSONSchemaObject = {
 
 export type JSONSchema = JSONSchemaAny | JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean | JSONSchemaArray | JSONSchemaObject;
 
-type PT = {__phantomType: symbol};
+type PT = {__phantomType: never};
 type NoPT<T> = T extends PT ? never : T;
 
-// type Or2<T1, T2> = T1 extends PT ? T2 : T1;
 type Or3<T1, T2, T3> = T1 extends PT ? (T2 extends PT ? T3 : T2) : T1;
 type Or4<T1, T2, T3, T4> = T1 extends PT ? (T2 extends PT ? (T3 extends PT ? T4 : T3) : T2) : T1;
 type Or5<T1, T2, T3, T4, T5> = T1 extends PT ? (T2 extends PT ? (T3 extends PT ? (T4 extends PT ? T5 : T4) : T3) : T2) : T1;
@@ -55,10 +55,11 @@ type VT_Any<T extends JSONSchema> = T extends {type: unknown} ? (T['type'] exten
 
 type VT_Const<T extends JSONSchema> = T extends {const: infer U} ? U : PT;
 
-type VT_Scalar<T extends JSONSchema> = Or3<VT_Scalar_Number<T>, VT_Scalar_String<T>, VT_Scalar_Boolean<T>>;
+type VT_Scalar<T extends JSONSchema> = Or4<VT_Scalar_Number<T>, VT_Scalar_Boolean<T>, VT_Scalar_String_Raw<T>, VT_Scalar_String_Enum<T>>;
 type VT_Scalar_Number<T extends JSONSchema> = T extends {type: 'number'} ? number : PT;
-type VT_Scalar_String<T extends JSONSchema> = T extends {type: 'string'} ? string : PT;
 type VT_Scalar_Boolean<T extends JSONSchema> = T extends {type: 'boolean'} ? boolean : PT;
+type VT_Scalar_String_Raw<T extends JSONSchema> = T extends {type: 'string', enum?: undefined} ? string : PT;
+type VT_Scalar_String_Enum<T extends JSONSchema> = T extends {type: 'string', enum: (infer E)[]} ? (T extends {enum: []} ? string : E) : PT;
 
 type VT_Array<T extends JSONSchema> = Or3<VT_Array_Empty<T>, VT_Array_Tuple<T>, VT_Array_Mapped<T>>;
 type VT_Array_Empty<T extends JSONSchema> = T extends {type: 'array', items?: undefined, prefixItems?: undefined} ? any[] : PT;
