@@ -13,6 +13,10 @@ export type JSONSchemaAny = {
     const?: never;
 } & JSONSchemaShared<unknown>;
 
+export type JSONSchemaNull = {
+    type: 'null';
+} & JSONSchemaShared<null>;
+
 export type JSONSchemaNumber = {
     type: 'number';
 } & JSONSchemaShared<number>;
@@ -20,6 +24,7 @@ export type JSONSchemaNumber = {
 export type JSONSchemaString = {
     type: 'string';
     enum?: string[];
+    enumLabels?: string[];
 } & JSONSchemaShared<string>;
 
 export type JSONSchemaBoolean = {
@@ -42,7 +47,7 @@ export type JSONSchemaObject = {
     additionalProperties?: boolean | JSONSchema;
 } & JSONSchemaShared<object>;
 
-export type JSONSchema = JSONSchemaAny | JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean | JSONSchemaArray | JSONSchemaObject;
+export type JSONSchema = JSONSchemaAny | JSONSchemaNull | JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean | JSONSchemaArray | JSONSchemaObject;
 
 type PT = {__phantomType: never};
 type NoPT<T> = T extends PT ? never : T;
@@ -55,22 +60,23 @@ type VT_Any<T extends JSONSchema> = T extends {type: unknown} ? (T['type'] exten
 
 type VT_Const<T extends JSONSchema> = T extends {const: infer U} ? U : PT;
 
-type VT_Scalar<T extends JSONSchema> = Or4<VT_Scalar_Number<T>, VT_Scalar_Boolean<T>, VT_Scalar_String_Raw<T>, VT_Scalar_String_Enum<T>>;
+type VT_Scalar<T extends JSONSchema> = Or5<VT_Scalar_Null<T>, VT_Scalar_Number<T>, VT_Scalar_Boolean<T>, VT_Scalar_String_Raw<T>, VT_Scalar_String_Enum<T>>;
+type VT_Scalar_Null<T extends JSONSchema> = T extends {type: 'null'} ? null : PT;
 type VT_Scalar_Number<T extends JSONSchema> = T extends {type: 'number'} ? number : PT;
 type VT_Scalar_Boolean<T extends JSONSchema> = T extends {type: 'boolean'} ? boolean : PT;
-type VT_Scalar_String_Raw<T extends JSONSchema> = T extends {type: 'string', enum?: undefined} ? string : PT;
-type VT_Scalar_String_Enum<T extends JSONSchema> = T extends {type: 'string', enum: (infer E)[]} ? (T extends {enum: []} ? string : E) : PT;
+type VT_Scalar_String_Raw<T extends JSONSchema> = T extends {type: 'string'; enum?: undefined} ? string : PT;
+type VT_Scalar_String_Enum<T extends JSONSchema> = T extends {type: 'string'; enum: (infer E)[]} ? (T extends {enum: []} ? string : E) : PT;
 
 type VT_Array<T extends JSONSchema> = Or3<VT_Array_Empty<T>, VT_Array_Tuple<T>, VT_Array_Mapped<T>>;
-type VT_Array_Empty<T extends JSONSchema> = T extends {type: 'array', items?: undefined, prefixItems?: undefined} ? any[] : PT;
-type VT_Array_Tuple<T extends JSONSchema> = T extends {type: 'array', items?: undefined | JSONSchema, prefixItems: infer PI extends JSONSchema[]} ? {[K in keyof PI]: FromSchema<PI[K]>} : PT;
-type VT_Array_Mapped<T extends JSONSchema> = T extends {type: 'array', items: JSONSchema, prefixItems?: undefined} ? FromSchema<T['items']>[] : PT;
+type VT_Array_Empty<T extends JSONSchema> = T extends {type: 'array'; items?: undefined; prefixItems?: undefined} ? any[] : PT;
+type VT_Array_Tuple<T extends JSONSchema> = T extends {type: 'array'; items?: undefined | JSONSchema; prefixItems: infer PI extends JSONSchema[]} ? {[K in keyof PI]: FromSchema<PI[K]>} : PT;
+type VT_Array_Mapped<T extends JSONSchema> = T extends {type: 'array'; items: JSONSchema; prefixItems?: undefined} ? FromSchema<T['items']>[] : PT;
 
 type VT_Object<T extends JSONSchema> = Or4<VT_Object_Empty<T>, VT_Object_Mapped<T>, VT_Object_Record<T>, VT_Object_Record_Mapped<T>>;
-type VT_Object_Empty<T extends JSONSchema> = T extends {type: 'object', properties?: undefined, additionalProperties?: false} ? {[K: string]: any} : PT;
-type VT_Object_Mapped<T extends JSONSchema> = T extends {type: 'object', properties: infer P extends Record<string, JSONSchema>, additionalProperties?: false} ? {[K in keyof P]: FromSchema<P[K]>} : PT;
-type VT_Object_Record<T extends JSONSchema> = T extends {type: 'object', properties?: undefined, additionalProperties: infer AP extends JSONSchema} ? Record<string, FromSchema<AP>> : PT;
-type VT_Object_Record_Mapped<T extends JSONSchema> = T extends {type: 'object', properties: infer P extends Record<string, JSONSchema>, additionalProperties: infer AP extends JSONSchema} ? {[K in keyof P]: FromSchema<P[K]>} & {[K: string]: FromSchema<AP>} : PT;
+type VT_Object_Empty<T extends JSONSchema> = T extends {type: 'object'; properties?: undefined; additionalProperties?: false} ? {[K: string]: any} : PT;
+type VT_Object_Mapped<T extends JSONSchema> = T extends {type: 'object'; properties: infer P extends Record<string, JSONSchema>; additionalProperties?: false} ? {[K in keyof P]: FromSchema<P[K]>} : PT;
+type VT_Object_Record<T extends JSONSchema> = T extends {type: 'object'; properties?: undefined; additionalProperties: infer AP extends JSONSchema} ? Record<string, FromSchema<AP>> : PT;
+type VT_Object_Record_Mapped<T extends JSONSchema> = T extends { type: 'object'; properties: infer P extends Record<string, JSONSchema>; additionalProperties: infer AP extends JSONSchema; } ? {[K in keyof P]: FromSchema<P[K]>} & {[K: string]: FromSchema<AP>} : PT;
 
 export type FromSchema<T extends JSONSchema> = NoPT<Or5<VT_Any<T>, VT_Const<T>, VT_Scalar<T>, VT_Array<T>, VT_Object<T>>>;
 export type FromObjectSchema<T extends Record<string, JSONSchema>> = {[K in keyof T]: FromSchema<T[K]>};
