@@ -27,7 +27,7 @@ const getPluginDbInstance = () => {
         "webhookUrl" text,
         "blockConfig" text not null,
         "pluginConfig" text,
-        "cleanupData" text not null,
+        "cleanupData" text,
 
         unique("plugin", "trigger", "webhookUrl")
     )`);
