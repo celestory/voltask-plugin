@@ -5,6 +5,7 @@ export type JSONSchemaShared<T> = {
     title?: string;
     format?: string;
     default?: T;
+    description?: string;
     errorMessage?: string | object;
 };
 
