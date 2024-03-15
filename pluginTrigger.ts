@@ -78,7 +78,8 @@ export interface PluginTrigger<
         //
         args: {
             request: Request;
-        },
+            blockConfig: BlockConfig;
+        } & PluginConfigIfNeeded,
     ) =>
         | SignedTriggerReturns
         | Promise<SignedTriggerReturns>

@@ -170,16 +170,18 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
             return ctx.json(await trigger.cleanupBlock({blockConfig, pluginConfig, cleanupData}));
         });
         app.all(`/triggers/${triggerName}/executeBlock`, async ctx => {
+            const blockConfig = JSON.parse(ctx.req.header('X-Voltask-BlockConfig') ?? 'null') ?? undefined;
+            const pluginConfig = JSON.parse(ctx.req.header('X-Voltask-PluginConfig') ?? 'null') ?? undefined;
             switch (trigger.executeBlock.constructor.name) {
                 case 'Function': {
-                    return ctx.json({done: true, value: trigger.executeBlock({request: ctx.req.raw})});
+                    return ctx.json({done: true, value: trigger.executeBlock({request: ctx.req.raw, blockConfig, pluginConfig})});
                 }
                 case 'AsyncFunction': {
-                    return ctx.json({done: true, value: await trigger.executeBlock({request: ctx.req.raw})});
+                    return ctx.json({done: true, value: await trigger.executeBlock({request: ctx.req.raw, blockConfig, pluginConfig})});
                 }
                 case 'GeneratorFunction':
                 case 'AsyncGeneratorFunction': {
-                    const generator = await trigger.executeBlock({request: ctx.req.raw});
+                    const generator = await trigger.executeBlock({request: ctx.req.raw, blockConfig, pluginConfig});
                     return ctx.streamText(async stream => {
                         try {
                             while (true) {
