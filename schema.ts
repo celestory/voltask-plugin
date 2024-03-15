@@ -26,6 +26,8 @@ export type JSONSchemaString = {
     type: 'string';
     enum?: string[];
     enumLabels?: string[];
+    contentEncoding?: string;
+    contentMediaType?: string;
 } & JSONSchemaShared<string>;
 
 export type JSONSchemaBoolean = {
