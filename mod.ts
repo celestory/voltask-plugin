@@ -12,4 +12,5 @@ export type {PluginTrigger, PluginTriggerBlockSignature} from './pluginTrigger.t
 export {hasPluginDb, forgetTrigger, rememberTrigger, getSavedTriggers} from './database/database.ts';
 export type {Trigger} from './database/database.ts';
 
+export {jsonSchemaFile} from './schema.ts';
 export type {JSONSchema, JSONSchemaFile, FromSchema} from './schema.ts';

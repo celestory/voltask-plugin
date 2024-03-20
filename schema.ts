@@ -61,6 +61,17 @@ export type JSONSchemaFile = {
     format: 'file';
 };
 
+export const jsonSchemaFile: JSONSchemaFile = {
+    type: 'object',
+    properties: {
+        name: {type: 'string'},
+        size: {type: 'number'},
+        type: {type: 'string'},
+        content: {type: 'string'},
+    },
+    format: 'file',
+};
+
 export type JSONSchema =
     | JSONSchemaAny
     | JSONSchemaNull
