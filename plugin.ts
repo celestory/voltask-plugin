@@ -9,6 +9,7 @@ interface PluginDeriveConfig<Config, RenderProps> {
 
 export interface Plugin<Config, RenderProps = unknown> {
     manifest: {
+        uid: string;
         title: string;
         color: string;
         iconUrl: string;

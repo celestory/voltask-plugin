@@ -6,11 +6,11 @@ export type {Plugin} from './plugin.ts';
 export {createPluginAction} from './pluginAction.ts';
 export type {PluginAction, PluginActionBlockSignature} from './pluginAction.ts';
 
-export {createPluginTrigger, createSavedPluginTrigger} from './pluginTrigger.ts';
+export {createPluginTrigger} from './pluginTrigger.ts';
 export type {PluginTrigger, PluginTriggerBlockSignature} from './pluginTrigger.ts';
 
-export {hasPluginDb, forgetTrigger, rememberTrigger, getSavedTriggers} from './database/database.ts';
-export type {Trigger} from './database/database.ts';
+export {initDatabase, forgetTrigger, rememberTrigger, getSavedTriggers} from './database/database.ts';
+export type {Trigger, DatabaseDriver, QueryParameterSet} from './database/database.ts';
 
 export {jsonSchemaFile} from './schema.ts';
 export type {JSONSchema, JSONSchemaFile, FromSchema} from './schema.ts';

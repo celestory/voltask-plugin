@@ -1,11 +1,27 @@
-import {Hono} from 'https://deno.land/x/hono@v3.7.0-rc.1/mod.ts';
+import type {Hono} from 'https://deno.land/x/hono@v3.7.0-rc.1/mod.ts';
 
+import {initDatabase} from '../database/database.ts';
+import {forgetTrigger} from '../database/database.ts';
+import {rememberTrigger} from '../database/database.ts';
+import {getSavedTriggers} from '../database/database.ts';
 import type {Plugin} from '../plugin.ts';
+import type {DatabaseDriver} from '../database/database.ts';
 
-export const createServer = (plugin: Plugin<unknown, unknown>) => {
+export const createServer = (HonoConstructor: typeof Hono, driver: DatabaseDriver, plugin: Plugin<unknown, unknown>) => {
     // TODO: Better error handling
+    driver.init();
+    const app = new HonoConstructor();
+    initDatabase(driver);
 
-    const app = new Hono();
+    for (const triggerName of Object.keys(plugin.triggers)) {
+        const trigger = plugin.triggers[triggerName]!;
+        if (trigger.manifest.rememberTrigger) {
+            for (const {plugin: _1, trigger: _2, ...args} of getSavedTriggers(plugin.manifest.uid, triggerName)) {
+                // deno-lint-ignore no-explicit-any
+                trigger.watchBlock(args as any);
+            }
+        }
+    }
 
     app.get('/', async ctx => {
         const {config: pluginConfig} = await plugin.deriveConfig({});
@@ -161,11 +177,20 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
         });
         app.post(`/triggers/${triggerName}/watchBlock`, async ctx => {
             const {webhookUrl, blockConfig, cleanupData, pluginConfig} = await ctx.req.json();
+            const nextCleanupData = await trigger.watchBlock({webhookUrl, blockConfig, cleanupData, pluginConfig});
 
-            return ctx.json(await trigger.watchBlock({webhookUrl, blockConfig, cleanupData, pluginConfig}));
+            if (trigger.manifest.rememberTrigger) {
+                rememberTrigger({blockConfig, pluginConfig, trigger: triggerName, plugin: plugin.manifest.uid, webhookUrl, cleanupData: nextCleanupData});
+            }
+
+            return ctx.json(nextCleanupData);
         });
         app.delete(`/triggers/${triggerName}/cleanupBlock`, async ctx => {
-            const {blockConfig, pluginConfig, cleanupData} = await ctx.req.json();
+            const {webhookUrl, blockConfig, pluginConfig, cleanupData} = await ctx.req.json();
+
+            if (trigger.manifest.rememberTrigger) {
+                forgetTrigger({plugin: plugin.manifest.uid, trigger: triggerName, webhookUrl});
+            }
 
             return ctx.json(await trigger.cleanupBlock({blockConfig, pluginConfig, cleanupData}));
         });
@@ -212,11 +237,11 @@ export const createServer = (plugin: Plugin<unknown, unknown>) => {
     return app;
 };
 
-export const createServers = (plugins: Record<string, Plugin<unknown, unknown>>) => {
-    const app = new Hono();
+export const createServers = (HonoConstructor: typeof Hono, driver: DatabaseDriver, plugins: Record<string, Plugin<unknown, unknown>>) => {
+    const app = new HonoConstructor();
 
     for (const [name, plugin] of Object.entries(plugins)) {
-        app.route(`/${name}`, createServer(plugin));
+        app.route(`/${name}`, createServer(HonoConstructor, driver, plugin));
     }
     return app;
 };

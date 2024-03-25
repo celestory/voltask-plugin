@@ -1,9 +1,16 @@
-import {DB} from 'https://deno.land/x/sqlite@v3.8/mod.ts';
+let pluginDb: DatabaseDriver;
 
-let pluginDb: DB;
-
-const dbFileName = 'plugin.sqlite';
 const tableName = 'triggers';
+
+type QueryParameter = boolean | number | bigint | string | null | undefined | Date | Uint8Array;
+
+export type QueryParameterSet = Record<string, QueryParameter>;
+
+export interface DatabaseDriver {
+    init: () => void;
+    execute(query: string): void;
+    queryEntries<T>(query: string, args?: QueryParameterSet): T[];
+}
 
 export interface Trigger {
     plugin: string;
@@ -15,11 +22,9 @@ export interface Trigger {
     pluginConfig?: unknown;
 }
 
-const getPluginDbInstance = () => {
-    if (pluginDb) {
-        return pluginDb;
-    }
-    pluginDb = new DB(dbFileName);
+export const initDatabase = (driver: DatabaseDriver) => {
+    pluginDb = driver;
+    driver.init();
     pluginDb.execute(`
     create table if not exists "${tableName}" (
         "plugin" text,
@@ -31,22 +36,12 @@ const getPluginDbInstance = () => {
 
         unique("plugin", "trigger", "webhookUrl")
     )`);
+
     return pluginDb;
 };
 
-export const hasPluginDb = () => {
-    try {
-        new DB(dbFileName, {mode: 'read'});
-        return true;
-    } catch (_) {
-        return false;
-    }
-};
-
 export const getSavedTriggers = (plugin: string, trigger: string) => {
-    const db = getPluginDbInstance();
-
-    return db
+    return pluginDb
         .queryEntries<{plugin: string; trigger: string; webhookUrl: string; blockConfig: string; cleanupData: string; pluginConfig?: string}>(
             `select * from "${tableName}" where "plugin" = :plugin and "trigger" = :trigger`,
             {plugin, trigger},
@@ -73,18 +68,10 @@ export const rememberTrigger = ({
     trigger: string;
     webhookUrl: string;
     blockConfig: unknown;
-    cleanupData?: Record<string, unknown>;
+    cleanupData?: unknown;
     pluginConfig?: unknown;
 }) => {
-    const db = getPluginDbInstance();
-    const returnCleanupData = {
-        ...cleanupData,
-        plugin,
-        trigger,
-        webhookUrl,
-    };
-
-    db.query(
+    pluginDb.queryEntries(
         `insert into "${tableName}" ("plugin", "trigger", "webhookUrl", "blockConfig", "pluginConfig", "cleanupData") values(:plugin, :trigger, :webhookUrl, :blockConfig, :pluginConfig, :cleanupData)
     on conflict do update set
         "blockConfig" = :blockConfig,
@@ -100,19 +87,12 @@ export const rememberTrigger = ({
             pluginConfig: JSON.stringify(pluginConfig),
         },
     );
-
-    return returnCleanupData;
 };
 
-export const forgetTrigger = ({cleanupData}: {cleanupData: Record<string, unknown>}) => {
-    const db = getPluginDbInstance();
-    if (cleanupData.webhookUrl && cleanupData.plugin && cleanupData.trigger) {
-        db.query(`delete from "${tableName}" where "plugin" = :plugin and "trigger" = :trigger and "webhookUrl" = :webhookUrl`, {
-            plugin: cleanupData.plugin as string,
-            trigger: cleanupData.trigger as string,
-            webhookUrl: cleanupData.webhookUrl as string,
-        });
-    } else {
-        console.error(`forgetWatch: cleanupData ${JSON.stringify(cleanupData, null, 2)} does not have the required fields`);
-    }
+export const forgetTrigger = ({plugin, trigger, webhookUrl}: {plugin: string; trigger: string; webhookUrl: string}) => {
+    pluginDb.queryEntries(`delete from "${tableName}" where "plugin" = :plugin and "trigger" = :trigger and "webhookUrl" = :webhookUrl`, {
+        plugin,
+        trigger,
+        webhookUrl,
+    });
 };

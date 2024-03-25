@@ -1,4 +1,3 @@
-import {getSavedTriggers} from './database/database.ts';
 import type {JSONSchema, FromObjectSchema} from './schema.ts';
 
 interface TriggerReturns<BlockSignature extends PluginTriggerBlockSignature> {
@@ -35,6 +34,7 @@ export interface PluginTrigger<
         color: string;
         iconUrl: string;
         description: string;
+        rememberTrigger: boolean;
         needsPluginConfig: NeedPluginConfig;
     };
     //
@@ -94,17 +94,17 @@ export const createPluginTrigger =
     ) =>
         trigger as PluginTrigger<unknown, unknown, unknown, PluginTriggerBlockSignature>;
 
-export const createSavedPluginTrigger =
-    <CleanupData, BlockConfig, PluginConfig, BlockSignature extends PluginTriggerBlockSignature = PluginTriggerBlockSignature>(
-        pluginName: string,
-        triggerName: string,
-    ) =>
-    <RenderProps, NeedPluginConfig extends boolean>(
-        trigger: PluginTrigger<CleanupData, BlockConfig, PluginConfig, BlockSignature, RenderProps, NeedPluginConfig>,
-    ) => {
-        for (const {plugin: _1, trigger: _2, ...args} of getSavedTriggers(pluginName, triggerName)) {
-            // deno-lint-ignore no-explicit-any
-            trigger.watchBlock(args as any);
-        }
-        return trigger as PluginTrigger<unknown, unknown, unknown, PluginTriggerBlockSignature>;
-    };
+// export const createSavedPluginTrigger =
+//     <CleanupData, BlockConfig, PluginConfig, BlockSignature extends PluginTriggerBlockSignature = PluginTriggerBlockSignature>(
+//         pluginName: string,
+//         triggerName: string,
+//     ) =>
+//     <RenderProps, NeedPluginConfig extends boolean>(
+//         trigger: PluginTrigger<CleanupData, BlockConfig, PluginConfig, BlockSignature, RenderProps, NeedPluginConfig>,
+//     ) => {
+//         for (const {plugin: _1, trigger: _2, ...args} of getSavedTriggers(pluginName, triggerName)) {
+//             // deno-lint-ignore no-explicit-any
+//             trigger.watchBlock(args as any);
+//         }
+//         return trigger as PluginTrigger<unknown, unknown, unknown, PluginTriggerBlockSignature>;
+//     };
