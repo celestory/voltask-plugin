@@ -57,6 +57,7 @@ export type JSONSchemaFile = {
         size: {type: 'number'};
         type: {type: 'string'};
         content: {type: 'string'};
+        [K: string]: JSONSchema;
     };
     format: 'file';
 };
