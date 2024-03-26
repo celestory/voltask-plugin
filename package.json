@@ -5,6 +5,6 @@
     "version": "0.0.1",
     "main": "mod.ts",
     "scripts": {
-        "build": "echo build"
+        "build": "echo noop"
     }
 }
