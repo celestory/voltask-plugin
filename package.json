@@ -1,10 +1,11 @@
 {
     "name": "voltask-plugin-sdk",
     "type": "module",
+    "main": "mod.ts",
     "private": true,
     "version": "0.0.1",
-    "main": "mod.ts",
     "scripts": {
-        "build": "echo noop"
+        "build": "echo noop",
+        "clean": "echo noop"
     }
 }
