@@ -3,9 +3,5 @@
     "type": "module",
     "main": "mod.ts",
     "private": true,
-    "version": "0.0.1",
-    "scripts": {
-        "build": "echo noop",
-        "clean": "echo noop"
-    }
+    "version": "0.0.1"
 }
