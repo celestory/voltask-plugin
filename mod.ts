@@ -13,4 +13,4 @@ export {initDatabase, forgetTrigger, rememberTrigger, getSavedTriggers} from './
 export type {Trigger, DatabaseDriver, QueryParameterSet} from './database/database.ts';
 
 export {jsonSchemaFile} from './schema.ts';
-export type {JSONSchema, JSONSchemaFile, FromSchema, JSONSchemaString, JSONSchemaArray, JSONSchemaObject} from './schema.ts';
+export type {JSONSchema, JSONSchemaFile, FromSchema, JSONSchemaString, JSONSchemaArray, JSONSchemaObject, JSONSchemaOAuth} from './schema.ts';

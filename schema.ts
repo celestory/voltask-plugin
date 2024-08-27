@@ -32,6 +32,7 @@ export type JSONSchemaString = {
 
 export type JSONSchemaBoolean = {
     type: 'boolean';
+    const?: boolean;
 } & JSONSchemaShared<boolean>;
 
 export type JSONSchemaArray = {
@@ -73,6 +74,14 @@ export const jsonSchemaFile: JSONSchemaFile = {
     format: 'file',
 };
 
+export type JSONSchemaOAuth = {
+    type: 'string';
+    format: 'oauth';
+    link: string;
+    icon?: string;
+    backgroundColor?: string;
+} & JSONSchemaShared<string>;
+
 export type JSONSchema =
     | JSONSchemaAny
     | JSONSchemaNull
@@ -81,7 +90,8 @@ export type JSONSchema =
     | JSONSchemaBoolean
     | JSONSchemaArray
     | JSONSchemaObject
-    | JSONSchemaFile;
+    | JSONSchemaFile
+    | JSONSchemaOAuth;
 
 type PT = {__phantomType: never};
 type NoPT<T> = T extends PT ? never : T;
