@@ -1,6 +1,7 @@
 let pluginDb: DatabaseDriver;
 
-const tableName = 'triggers';
+const triggersTablename = 'triggers';
+const savedDataTablename = 'saved_data';
 
 type QueryParameter = boolean | number | bigint | string | null | undefined | Date | Uint8Array;
 
@@ -26,7 +27,7 @@ export const initDatabase = (driver: DatabaseDriver) => {
     pluginDb = driver;
     driver.init();
     pluginDb.execute(`
-    create table if not exists "${tableName}" (
+    create table if not exists "${triggersTablename}" (
         "plugin" text,
         "trigger" text,
         "webhookUrl" text,
@@ -37,13 +38,22 @@ export const initDatabase = (driver: DatabaseDriver) => {
         unique("plugin", "trigger", "webhookUrl")
     )`);
 
+    pluginDb.execute(`
+        create table if not exists "${savedDataTablename}" (
+            "id" text,
+            "data" text,
+            "updatedAt" text,
+
+            unique("id")
+        )`);
+
     return pluginDb;
 };
 
 export const getSavedTriggers = (plugin: string, trigger: string) => {
     return pluginDb
         .queryEntries<{plugin: string; trigger: string; webhookUrl: string; blockConfig: string; cleanupData: string; pluginConfig?: string}>(
-            `select * from "${tableName}" where "plugin" = :plugin and "trigger" = :trigger`,
+            `select * from "${triggersTablename}" where "plugin" = :plugin and "trigger" = :trigger`,
             {plugin, trigger},
         )
         .map<Trigger>(({plugin, trigger, blockConfig, webhookUrl, cleanupData, pluginConfig}) => ({
@@ -72,7 +82,7 @@ export const rememberTrigger = ({
     pluginConfig?: unknown;
 }) => {
     pluginDb.queryEntries(
-        `insert into "${tableName}" ("plugin", "trigger", "webhookUrl", "blockConfig", "pluginConfig", "cleanupData") values(:plugin, :trigger, :webhookUrl, :blockConfig, :pluginConfig, :cleanupData)
+        `insert into "${triggersTablename}" ("plugin", "trigger", "webhookUrl", "blockConfig", "pluginConfig", "cleanupData") values(:plugin, :trigger, :webhookUrl, :blockConfig, :pluginConfig, :cleanupData)
     on conflict do update set
         "blockConfig" = :blockConfig,
         "cleanupData" = :cleanupData,
@@ -90,9 +100,31 @@ export const rememberTrigger = ({
 };
 
 export const forgetTrigger = ({plugin, trigger, webhookUrl}: {plugin: string; trigger: string; webhookUrl: string}) => {
-    pluginDb.queryEntries(`delete from "${tableName}" where "plugin" = :plugin and "trigger" = :trigger and "webhookUrl" = :webhookUrl`, {
+    pluginDb.queryEntries(`delete from "${triggersTablename}" where "plugin" = :plugin and "trigger" = :trigger and "webhookUrl" = :webhookUrl`, {
         plugin,
         trigger,
         webhookUrl,
     });
+};
+
+export const saveData = <T>(id: string, data: T) => {
+    pluginDb.queryEntries(
+        `insert into "${savedDataTablename}" ("id", "data", "updatedAt") values(:id, :data, datetime('now'))
+    on conflict do update set
+        "data" = :data,
+        "updatedAt" = datetime('now')
+    `,
+        {
+            id,
+            data: JSON.stringify(data),
+        },
+    );
+};
+
+export const getSavedData = <T>(id: string) => {
+    const rows = pluginDb.queryEntries<{id: string; data: string}>(`select * from "${savedDataTablename}" where "id" = :id`, {id});
+    if (rows[0]) {
+        return JSON.parse(rows[0].data) as T;
+    }
+    return undefined;
 };
