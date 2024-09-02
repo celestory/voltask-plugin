@@ -231,6 +231,7 @@ export const createServer = (HonoConstructor: typeof Hono, driver: DatabaseDrive
     }
 
     app.onError((error, ctx) => {
+        console.error(`hono error:`, error);
         return ctx.json({error: error.message}, 500);
     });
 
