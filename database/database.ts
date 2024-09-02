@@ -128,3 +128,7 @@ export const getSavedData = <T>(id: string) => {
     }
     return undefined;
 };
+
+export const deleteSavedData = (id: string) => {
+    pluginDb.queryEntries(`delete from "${savedDataTablename}" where "id" = :id`, {id});
+};
