@@ -70,6 +70,14 @@ export const createServer = (HonoConstructor: typeof Hono, driver: DatabaseDrive
         });
     });
 
+    app.delete(`/cleanup`, async ctx => {
+        const {config} = await ctx.req.json();
+        if (plugin.cleanupConfig) {
+            await plugin.cleanupConfig(config);
+        }
+        return ctx.json({});
+    });
+
     for (const [actionName, action] of Object.entries(plugin.actions)) {
         app.post(`/actions/${actionName}/bestConfig`, async ctx => {
             const {pluginConfigs} = await ctx.req.json();

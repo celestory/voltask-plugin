@@ -31,6 +31,7 @@ export interface Plugin<Config, RenderProps = unknown> {
             renderProps: RenderProps;
         },
     ) => JSONSchema | Promise<JSONSchema>;
+    cleanupConfig?: (config: Config) => void | Promise<void>;
     //
     actions: Record<string, PluginAction<unknown, Config, PluginActionBlockSignature, unknown>>;
     triggers: Record<string, PluginTrigger<unknown, unknown, Config, PluginTriggerBlockSignature, unknown>>;
